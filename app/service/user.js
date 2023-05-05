@@ -3,9 +3,13 @@ const Service = require('egg').Service;
 class UserService extends Service {
   // 判断当前用户是否存在
   async getUserByName(username) {
-    const { app } = this;
+    const { ctx } = this;
     try {
-      const result = await app.mysql.get('user', { username });
+      const result = await ctx.model.User.findOne({
+        where: {
+          username,
+        },
+      });
       return result;
     } catch (e) {
       return e.sqlMessage;
@@ -14,10 +18,9 @@ class UserService extends Service {
 
   // 注册
   async register(params) {
-    const { app } = this;
+    const { ctx } = this;
     try {
-      await app.mysql.insert('user', params);
-      return '注册成功';
+      return await ctx.model.User.create(params);
     } catch (e) {
       return e.sqlMessage;
     }
@@ -25,7 +28,7 @@ class UserService extends Service {
 
   // 更改用户信息
   async updateUserInfo(params) {
-    const { app } = this;
+    const { ctx } = this;
     const { id } = params;
     const options = {
       where: {
@@ -33,11 +36,11 @@ class UserService extends Service {
       },
     };
     try {
-      const result = await app.mysql.update('user', params, options);
-      return result.affectedRows === 1;
+      const result = await ctx.model.User.update(params, options);
+      return result;
     } catch (error) {
       console.log(error);
-      return;
+      return null;
     }
   }
 }

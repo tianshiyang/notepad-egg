@@ -20,7 +20,7 @@
         let formData = new FormData()
         // 添加实例属性 file
         formData.append('file', file)
-        console.log('formData', formData)
+        .log('formData', formData)
         // 调用服务端上传接口。
         fetch('http://localhost:7002/api/upload', {
           method: 'POST',

@@ -19,14 +19,6 @@ class UserController extends Controller {
     }
 
     const userInfo = await ctx.service.user.getUserByName(username);
-
-    if (password !== userInfo?.password) {
-      ctx.body = {
-        code: 500,
-        msg: '用户名或密码错误',
-      };
-      return;
-    }
     // 如果当前用户存在
     if (userInfo && userInfo.id) {
       ctx.body = {
@@ -36,6 +28,14 @@ class UserController extends Controller {
       };
       return;
     }
+    if (userInfo && password !== userInfo.password) {
+      ctx.body = {
+        code: 500,
+        msg: '用户名或密码错误',
+      };
+      return;
+    }
+
     // 注册
     const result = await ctx.service.user.register(
       {
@@ -46,10 +46,19 @@ class UserController extends Controller {
         ctime: new Date().getTime(),
       }
     );
-    ctx.body = {
-      code: 200,
-      data: result,
-    };
+
+    if (result.id) {
+      ctx.body = {
+        code: 200,
+        data: result,
+      };
+    } else {
+      ctx.body = {
+        code: 500,
+        message: '注册失败',
+      };
+    }
+
     return;
   }
 
@@ -108,14 +117,20 @@ class UserController extends Controller {
   // 更新用户信息
   async updateUserInfo() {
     const { ctx, app } = this;
-    const { username } = await app.jwt.verify(ctx.request.header.authorization, app.config.jwt.secret);
+    const { username, id } = await app.jwt.verify(ctx.request.header.authorization, app.config.jwt.secret);
     const { signature = '', avatar = '' } = ctx.request.body;
     const userInfo = await ctx.service.user.getUserByName(username);
-    const result = await ctx.service.user.updateUserInfo({ ...userInfo, signature, avatar });
+    const result = await ctx.service.user.updateUserInfo({ ...userInfo, id, signature, avatar });
     if (result) {
       ctx.body = {
         code: 200,
         message: '修改成功',
+      };
+    } else {
+      ctx.body = {
+        code: 500,
+        message: '修改失败',
+        result,
       };
     }
   }

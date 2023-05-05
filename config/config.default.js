@@ -49,6 +49,7 @@ module.exports = appInfo => {
     host: 'localhost',
     port: '3306',
     database: 'notepad',
+    password: '12345678',
   };
 
   // add your user config here 全局配置信息
