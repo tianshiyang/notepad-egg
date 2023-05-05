@@ -9,7 +9,6 @@ module.exports = app => {
   const _jwt = middleware.jwtErr(app.config.jwt.secret);
 
 
-  router.get('/', controller.home.index);
   // 注册
   router.post('/user/register', controller.user.register);
   // 登录
