@@ -4,6 +4,7 @@ const { Controller } = require('egg');
 const moment = require('moment');
 
 class BillController extends Controller {
+  // 新增账单
   async add() {
     const { ctx, app } = this;
 
@@ -33,10 +34,11 @@ class BillController extends Controller {
         remark,
       });
 
-      if (result.affectedRows > 0) {
+      console.log(result);
+      if (result) {
         ctx.body = {
           code: 200,
-          message: '更新成功',
+          message: '新增成功',
           result,
         };
       } else {
@@ -50,6 +52,7 @@ class BillController extends Controller {
     }
   }
 
+  // 获取账单列表
   async getBillList() {
     const { ctx, app } = this;
     const { date, type_id, page_no, page_size } = ctx.query;
@@ -86,15 +89,15 @@ class BillController extends Controller {
       if (!decode) {
         return;
       }
-      const { id } = ctx.query;
-      if (!id) {
+      const { id: order_id } = ctx.query;
+      if (!order_id) {
         ctx.body = {
           code: 400,
           message: '缺少账单ID',
         };
         return;
       }
-      const result = await ctx.service.bill.getBillDetail({ user_id: decode.id, order_id: id });
+      const result = await ctx.service.bill.getBillDetail({ order_id });
       if (!result) {
         ctx.body = {
           code: 400,
@@ -119,15 +122,15 @@ class BillController extends Controller {
       if (!decode) {
         return;
       }
-      const { pay_type, amount, date, type_id, remark } = this.ctx.request.body;
-      if (!pay_type || !amount || !date || !type_id || !remark) {
+      const { pay_type, amount, date, type_id, remark, order_id } = this.ctx.request.body;
+      if (!pay_type || !amount || !date || !type_id || !remark || !order_id) {
         this.ctx.body = {
           code: 400,
           message: '参数错误',
         };
         return;
       }
-      const result = await this.ctx.service.bill.editBillOrder({ pay_type, amount, date, type_id, remark, id: decode.id });
+      const result = await this.ctx.service.bill.editBillOrder({ pay_type, amount, date, type_id, remark, order_id });
       if (!result) {
         this.ctx.body = {
           code: 400,
@@ -186,9 +189,9 @@ class BillController extends Controller {
         return;
       }
       const params = {
-        date: this.ctx.request.body.date,
+        date: this.ctx.query.date,
         user_id: decode.id,
-        pay_type: this.ctx.request.body.pay_type ?? 'all',
+        pay_type: this.ctx.query.pay_type ?? 'all',
       };
       const result = await this.ctx.service.bill.getCostOrIncome(params);
       if (!result) {
