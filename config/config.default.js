@@ -16,7 +16,11 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1682518307730_7677';
 
   // add your middleware config here
-  config.middleware = [];
+
+  // 全局中间件
+  config.middleware = [
+    'errorHandler',
+  ];
 
   config.security = {
     csrf: {
@@ -24,6 +28,10 @@ module.exports = appInfo => {
       ignoreJSON: true,
     },
     domainWhiteList: [ '*' ], // 配置白名单
+  };
+
+  config.logger = {
+    // outputJSON: true,
   };
 
   // config.mysql = {

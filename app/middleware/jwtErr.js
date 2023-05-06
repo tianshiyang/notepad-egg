@@ -9,7 +9,6 @@ module.exports = secret => {
         ctx.app.jwt.verify(token, secret);
         await next();
       } catch (error) {
-        console.log(error);
         ctx.status = 200;
         ctx.body = {
           code: 401,

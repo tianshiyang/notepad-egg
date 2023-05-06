@@ -74,6 +74,13 @@ class UserController extends Controller {
       return;
     }
     const userInfo = await ctx.service.user.getUserByName(username);
+    if (!userInfo) {
+      ctx.body = {
+        code: 500,
+        message: '用户不存在',
+      };
+      return;
+    }
     const token = app.jwt.sign({
       id: userInfo.id,
       username,
