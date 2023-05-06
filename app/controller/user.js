@@ -1,38 +1,34 @@
 'use strict';
 
-const { Controller } = require('egg');
+const BaseController = require('./baseController');
 
 const defaultAvatar = 'http://s.yezgea02.com/1615973940679/WeChat77d6d2ac093e247c361f0b8a7aeb6c2a.png';
 const defaultSignature = '这个人很懒,什么都有留下~';
 
-class UserController extends Controller {
+class UserController extends BaseController {
+  // 注册
   async register() {
     const { ctx } = this;
     const { username, password, signature, avatar } = ctx.request.body;
     if (!username || !password) {
-      ctx.body = {
-        code: 500,
-        msg: '账号密码不能为空',
-        data: null,
-      };
+      this.error({
+        message: '账号密码不能为空',
+      });
       return;
     }
 
     const userInfo = await ctx.service.user.getUserByName(username);
     // 如果当前用户存在
     if (userInfo && userInfo.id) {
-      ctx.body = {
-        code: 500,
-        msg: '账户名已被注册，请重新输入',
-        data: null,
-      };
+      this.error({
+        message: '账户名已被注册，请重新输入',
+      });
       return;
     }
     if (userInfo && password !== userInfo.password) {
-      ctx.body = {
-        code: 500,
-        msg: '用户名或密码错误',
-      };
+      this.error({
+        message: '用户名或密码错误',
+      });
       return;
     }
 
@@ -48,18 +44,14 @@ class UserController extends Controller {
     );
 
     if (result.id) {
-      ctx.body = {
-        code: 200,
+      this.success({
         data: result,
-      };
+      });
     } else {
-      ctx.body = {
-        code: 500,
+      this.error({
         message: '注册失败',
-      };
+      });
     }
-
-    return;
   }
 
   async login() {
@@ -67,18 +59,16 @@ class UserController extends Controller {
     const { username, password } = ctx.request.body;
 
     if (!username || !password) {
-      ctx.body = {
-        code: 500,
-        msg: '用户名密码不存在',
-      };
+      this.error({
+        message: '用户名密码不存在',
+      });
       return;
     }
     const userInfo = await ctx.service.user.getUserByName(username);
     if (!userInfo) {
-      ctx.body = {
-        code: 500,
+      this.error({
         message: '用户不存在',
-      };
+      });
       return;
     }
     const token = app.jwt.sign({
@@ -87,13 +77,12 @@ class UserController extends Controller {
       exp: Math.floor((Date.now() / 1000) + 24 * 60 * 60),
     }, app.config.jwt.secret);
 
-    ctx.body = {
-      code: 200,
+    this.success({
       message: '登录成功',
       data: {
         token,
       },
-    };
+    });
   }
 
   // 测试token解码
@@ -115,10 +104,9 @@ class UserController extends Controller {
     const { ctx, app } = this;
     const { username } = await app.jwt.verify(ctx.request.header.authorization, app.config.jwt.secret);
     const userInfo = await ctx.service.user.getUserByName(username);
-    ctx.body = {
-      code: 200,
-      userInfo,
-    };
+    this.success({
+      data: userInfo,
+    });
   }
 
   // 更新用户信息
@@ -129,16 +117,13 @@ class UserController extends Controller {
     const userInfo = await ctx.service.user.getUserByName(username);
     const result = await ctx.service.user.updateUserInfo({ ...userInfo, id, signature, avatar });
     if (result) {
-      ctx.body = {
-        code: 200,
+      this.success({
         message: '修改成功',
-      };
+      });
     } else {
-      ctx.body = {
-        code: 500,
+      this.error({
         message: '修改失败',
-        result,
-      };
+      });
     }
   }
 }

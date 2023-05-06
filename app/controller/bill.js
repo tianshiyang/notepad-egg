@@ -1,10 +1,10 @@
 'use strict';
 
-const { Controller } = require('egg');
+const BaseController = require('./baseController');
 const moment = require('moment');
 const { parseQuery } = require('../utils/resultParse');
 
-class BillController extends Controller {
+class BillController extends BaseController {
   // 新增账单
   async add() {
     const { ctx, app } = this;
@@ -13,10 +13,9 @@ class BillController extends Controller {
     const { amount, type_id, date = moment().format('YYYY-MM-DD HH:mm:ss'), pay_type, remark = '' } = ctx.request.body;
 
     if (!amount || !type_id) {
-      ctx.body = {
-        code: 400,
+      this.error({
         message: '参数错误',
-      };
+      });
       return;
     }
 
@@ -35,21 +34,20 @@ class BillController extends Controller {
         remark,
       });
 
-      console.log(result);
       if (result) {
-        ctx.body = {
-          code: 200,
+        this.success({
           message: '新增成功',
-          result,
-        };
+          data: result,
+        });
       } else {
-        ctx.body = {
-          code: 500,
-          message: result.sqlMessage,
-        };
+        this.error({
+          message: '新增失败',
+        });
       }
     } catch (e) {
-      console.log(e);
+      this.error({
+        message: e,
+      });
     }
   }
 
@@ -65,20 +63,20 @@ class BillController extends Controller {
         return;
       }
       const id = decode.id;
-      const result = await ctx.service.bill.getBillList({ format_date, type_id, page_no, page_size, id });
-      if (result) {
-        ctx.body = {
-          code: 200,
-          data: result,
-        };
+      const data = await ctx.service.bill.getBillList({ format_date, type_id, page_no, page_size, id });
+      if (data) {
+        this.success({
+          data,
+        });
       } else {
-        ctx.body = {
-          code: 400,
+        this.error({
           message: '查询错误',
-        };
+        });
       }
     } catch (e) {
-      console.log(e);
+      this.error({
+        message: e,
+      });
     }
   }
 
@@ -92,27 +90,25 @@ class BillController extends Controller {
       }
       const { id: order_id } = ctx.query;
       if (!order_id) {
-        ctx.body = {
-          code: 400,
+        this.error({
           message: '缺少账单ID',
-        };
+        });
         return;
       }
-      const result = await ctx.service.bill.getBillDetail({ order_id });
-      if (!result) {
-        ctx.body = {
-          code: 400,
+      const data = await ctx.service.bill.getBillDetail({ order_id });
+      if (!data) {
+        this.error({
           message: '查询失败',
-        };
+        });
       } else {
-        ctx.body = {
-          code: 200,
-          data: result,
-        };
+        this.success({
+          data,
+        });
       }
     } catch (e) {
-      console.log(e);
-      return e;
+      this.error({
+        message: e,
+      });
     }
   }
 
@@ -125,31 +121,25 @@ class BillController extends Controller {
       }
       const { pay_type, amount, date, type_id, remark, order_id } = this.ctx.request.body;
       if (!pay_type || !amount || !date || !type_id || !remark || !order_id) {
-        this.ctx.body = {
-          code: 400,
+        this.error({
           message: '参数错误',
-        };
+        });
         return;
       }
-      const result = await this.ctx.service.bill.editBillOrder({ pay_type, amount, date, type_id, remark, order_id });
-      if (!result) {
-        this.ctx.body = {
-          code: 400,
+      const data = await this.ctx.service.bill.editBillOrder({ pay_type, amount, date, type_id, remark, order_id });
+      if (!data) {
+        this.error({
           message: '更改失败',
-        };
+        });
       } else {
-        this.ctx.body = {
-          code: 200,
-          message: '更新成功',
-          date: result,
-        };
+        this.success({
+          data,
+        });
       }
     } catch (e) {
-      console.log(e);
-      this.ctx.body = {
-        code: 400,
+      this.error({
         message: '更改失败',
-      };
+      });
     }
   }
 
@@ -163,30 +153,25 @@ class BillController extends Controller {
       const { id } = this.ctx.request.body;
       const user_id = parseQuery(await this.ctx.service.bill.getBillDetail({ order_id: id }))[0].user_id;
       if (user_id !== id) {
-        this.ctx.body = {
-          code: 400,
+        this.error({
           message: '不可更改其他人账单',
-        };
+        });
         return;
       }
       const result = await this.ctx.service.bill.deleteBillOrder({ user_id: decode.id, order_id: id });
       if (!result) {
-        this.ctx.body = {
-          code: 400,
+        this.error({
           message: '删除失败',
-        };
+        });
       } else {
-        this.ctx.body = {
-          code: 200,
+        this.success({
           message: '删除成功',
-        };
+        });
       }
     } catch (e) {
-      console.log(e);
-      this.ctx.body = {
-        code: 400,
+      this.error({
         message: '删除失败',
-      };
+      });
     }
   }
 
@@ -204,26 +189,26 @@ class BillController extends Controller {
       };
       const result = await this.ctx.service.bill.getCostOrIncome(params);
       if (!result) {
-        this.ctx.body = {
-          code: 400,
+        this.error({
           message: '获取失败',
-        };
+        });
       } else {
         const total_amount = result.reduce((count, cur) => {
           count += Number(cur.amount);
           return count;
         }, 0);
-        this.ctx.body = {
-          list: result,
+        const data = {
           total_amount,
+          list: result,
         };
+        this.success({
+          data,
+        });
       }
     } catch (e) {
-      console.log(e);
-      this.ctx.body = {
-        code: 400,
+      this.error({
         message: '获取收支构成失败',
-      };
+      });
     }
   }
 }
