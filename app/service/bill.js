@@ -92,6 +92,7 @@ class BillService extends Service {
       return await this.ctx.model.Bill.destroy({
         where: {
           id: params.order_id,
+          user_id: params.user_id,
         },
       });
     } catch (e) {

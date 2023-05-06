@@ -2,6 +2,7 @@
 
 const { Controller } = require('egg');
 const moment = require('moment');
+const { parseQuery } = require('../utils/resultParse');
 
 class BillController extends Controller {
   // 新增账单
@@ -160,6 +161,14 @@ class BillController extends Controller {
         return;
       }
       const { id } = this.ctx.request.body;
+      const user_id = parseQuery(await this.ctx.service.bill.getBillDetail({ order_id: id }))[0].user_id;
+      if (user_id !== id) {
+        this.ctx.body = {
+          code: 400,
+          message: '不可更改其他人账单',
+        };
+        return;
+      }
       const result = await this.ctx.service.bill.deleteBillOrder({ user_id: decode.id, order_id: id });
       if (!result) {
         this.ctx.body = {
