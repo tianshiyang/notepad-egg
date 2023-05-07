@@ -23,4 +23,8 @@ module.exports = {
     enable: true,
     package: 'egg-sequelize',
   },
+  validate: {
+    enable: true,
+    package: 'egg-validate',
+  },
 };

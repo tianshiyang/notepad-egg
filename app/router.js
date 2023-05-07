@@ -6,6 +6,7 @@
 module.exports = app => {
   const { router, controller, middleware } = app;
 
+  // 身份认证
   const _jwt = middleware.jwtErr(app.config.jwt.secret);
 
 

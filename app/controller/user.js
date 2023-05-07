@@ -10,12 +10,32 @@ class UserController extends BaseController {
   async register() {
     const { ctx } = this;
     const { username, password, signature, avatar } = ctx.request.body;
-    if (!username || !password) {
+    const rules = {
+      username: {
+        type: 'adminValueValidate',
+        required: true,
+        adminValue: [ 'admin' ],
+      },
+      password: 'password',
+      signature: 'string?',
+      avatar: 'string?',
+    };
+
+    const errors = this.app.validator.validate(rules, ctx.request.body);
+
+    if (errors) {
       this.error({
-        message: '账号密码不能为空',
+        message: `${errors[0].field}: ${errors[0].message}`,
       });
       return;
     }
+
+    // if (!username || !password) {
+    //   this.error({
+    //     message: '账号密码不能为空',
+    //   });
+    //   return;
+    // }
 
     const userInfo = await ctx.service.user.getUserByName(username);
     // 如果当前用户存在

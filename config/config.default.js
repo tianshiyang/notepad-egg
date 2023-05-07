@@ -2,6 +2,8 @@
 
 'use strict';
 
+const I18n = require('i18n');
+
 /**
  * @param {Egg.EggAppInfo} appInfo app info
  */
@@ -21,6 +23,23 @@ module.exports = appInfo => {
   config.middleware = [
     'errorHandler',
   ];
+
+  I18n.configure({
+    locales: [ 'zh-CN' ],
+    defaultLocale: 'zh-CN',
+    directory: __dirname + '/locale',
+  });
+
+  // 验证插件
+  config.validate = {
+    // convert: true,
+    // validateRoot: false,
+    // 中文转换
+    translate() {
+      const args = Array.prototype.slice.call(arguments);
+      return I18n.__.apply(I18n, args);
+    },
+  };
 
   config.security = {
     csrf: {
