@@ -12,9 +12,16 @@ class BillController extends BaseController {
     // 获取参数
     const { amount, type_id, date = moment().format('YYYY-MM-DD HH:mm:ss'), pay_type, remark = '' } = ctx.request.body;
 
-    if (!amount || !type_id) {
+    const rules = {
+      amount: 'string',
+      type_id: 'string',
+      pay_type: 'string',
+    };
+
+    const errors = this.app.validator.validate(rules, ctx.request.body);
+    if (errors) {
       this.error({
-        message: '参数错误',
+        message: `${errors[0].field}: ${errors[0].message}`,
       });
       return;
     }
@@ -89,9 +96,15 @@ class BillController extends BaseController {
         return;
       }
       const { id: order_id } = ctx.query;
-      if (!order_id) {
+
+      const rules = {
+        id: 'string',
+      };
+
+      const errors = this.app.validator.validate(rules, ctx.request.body);
+      if (errors) {
         this.error({
-          message: '缺少账单ID',
+          message: `${errors[0].field}: ${errors[0].message}`,
         });
         return;
       }
@@ -120,12 +133,23 @@ class BillController extends BaseController {
         return;
       }
       const { pay_type, amount, date, type_id, remark, order_id } = this.ctx.request.body;
-      if (!pay_type || !amount || !date || !type_id || !remark || !order_id) {
+
+      const rules = {
+        pay_type: [ '1', '2' ],
+        amount: 'string',
+        date: 'date',
+        type_id: 'string',
+        remark: 'string',
+        order_id: 'string',
+      };
+      const errors = this.app.validator.validate(rules, this.ctx.request.body);
+      if (errors) {
         this.error({
-          message: '参数错误',
+          message: `${errors[0].field}: ${errors[0].message}`,
         });
         return;
       }
+
       const data = await this.ctx.service.bill.editBillOrder({ pay_type, amount, date, type_id, remark, order_id });
       if (!data) {
         this.error({
