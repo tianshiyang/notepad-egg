@@ -30,13 +30,6 @@ class UserController extends BaseController {
       return;
     }
 
-    // if (!username || !password) {
-    //   this.error({
-    //     message: '账号密码不能为空',
-    //   });
-    //   return;
-    // }
-
     const userInfo = await ctx.service.user.getUserByName(username);
     // 如果当前用户存在
     if (userInfo && userInfo.id) {
@@ -76,14 +69,22 @@ class UserController extends BaseController {
 
   async login() {
     const { ctx, app } = this;
-    const { username, password } = ctx.request.body;
+    const rules = {
+      username: 'string',
+      password: 'password',
+    };
 
-    if (!username || !password) {
+    // 校验参数
+    const errors = this.app.validator.validate(rules, ctx.request.body);
+    if (errors) {
       this.error({
-        message: '用户名密码不存在',
+        message: `${errors[0].field}: ${errors[0].message}`,
       });
       return;
     }
+
+    const { username } = this.ctx.request.body;
+
     const userInfo = await ctx.service.user.getUserByName(username);
     if (!userInfo) {
       this.error({
