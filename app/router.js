@@ -34,4 +34,6 @@ module.exports = app => {
   router.post('/api/bill/delete/order', _jwt, controller.bill.deleteBillOrder);
   // 消费构成
   router.get('/api/bill/get/cost_or_income', _jwt, controller.bill.getCostOrIncome);
+  // 消费类型
+  router.get('/api/type/get/types', _jwt, controller.types.getTypes);
 };
