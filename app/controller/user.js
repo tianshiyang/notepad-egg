@@ -1,6 +1,7 @@
 'use strict';
 
 const BaseController = require('./baseController');
+const { parseQuery } = require('../utils/resultParse');
 
 const defaultAvatar = 'http://s.yezgea02.com/1615973940679/WeChat77d6d2ac093e247c361f0b8a7aeb6c2a.png';
 const defaultSignature = '这个人很懒,什么都有留下~';
@@ -30,7 +31,7 @@ class UserController extends BaseController {
       return;
     }
 
-    const userInfo = await ctx.service.user.getUserByName(username);
+    const userInfo = parseQuery(await ctx.service.user.getUserByName(username));
     // 如果当前用户存在
     if (userInfo && userInfo.id) {
       this.error({
@@ -83,12 +84,19 @@ class UserController extends BaseController {
       return;
     }
 
-    const { username } = this.ctx.request.body;
+    const { username, password } = this.ctx.request.body;
 
-    const userInfo = await ctx.service.user.getUserByName(username);
+    const userInfo = parseQuery(await ctx.service.user.getUserByName(username));
+
     if (!userInfo) {
       this.error({
         message: '用户不存在',
+      });
+      return;
+    }
+    if (userInfo.password !== password) {
+      this.error({
+        message: '密码错误',
       });
       return;
     }

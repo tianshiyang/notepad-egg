@@ -11,27 +11,27 @@ module.exports = app => {
 
 
   // 注册
-  router.post('/user/register', controller.user.register);
+  router.post('/api/user/register', controller.user.register);
   // 登录
-  router.post('/user/login', controller.user.login);
+  router.post('/api/user/login', controller.user.login);
   // 测试解码token
-  router.post('/user/test-decode', _jwt, controller.user.testDecode);
+  router.post('/api/user/test-decode', _jwt, controller.user.testDecode);
   // 获取用户信息
-  router.get('/user/get/userinfo', _jwt, controller.user.getUserInfo);
+  router.get('/api/user/get/userinfo', _jwt, controller.user.getUserInfo);
   // 修改用户信息
-  router.post('/user/update/userinfo', _jwt, controller.user.updateUserInfo);
+  router.post('/api/user/update/userinfo', _jwt, controller.user.updateUserInfo);
   // 上传图片
   router.post('/api/upload', controller.upload.upload);
   // 增加账单
-  router.post('/bill/add', _jwt, controller.bill.add);
+  router.post('/api/bill/add', _jwt, controller.bill.add);
   // 获取账单
-  router.get('/bill/get/list', _jwt, controller.bill.getBillList);
+  router.get('/api/bill/get/list', _jwt, controller.bill.getBillList);
   // 获取账单详情
-  router.get('/bill/get/detail', _jwt, controller.bill.getBillDetail);
+  router.get('/api/bill/get/detail', _jwt, controller.bill.getBillDetail);
   // 更改账单
-  router.post('/bill/edit/order', controller.bill.editBillOrder);
+  router.post('/api/bill/edit/order', controller.bill.editBillOrder);
   // 删除订单
-  router.post('/bill/delete/order', _jwt, controller.bill.deleteBillOrder);
+  router.post('/api/bill/delete/order', _jwt, controller.bill.deleteBillOrder);
   // 消费构成
-  router.get('/bill/get/cost_or_income', _jwt, controller.bill.getCostOrIncome);
+  router.get('/api/bill/get/cost_or_income', _jwt, controller.bill.getCostOrIncome);
 };
