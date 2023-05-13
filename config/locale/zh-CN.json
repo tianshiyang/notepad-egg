@@ -6,5 +6,6 @@
 	"should be an email": "应该是电子邮件格式",
 	"length should bigger than %s": "长度最少 %s 位",
 	"should be an integer": "should be an integer",
-	"should be one of %s": "should be one of %s"
+	"should be one of %s": "should be one of %s",
+	"should be a string": "should be a string"
 }

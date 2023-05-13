@@ -28,10 +28,10 @@ class BillService extends Service {
       }
 
       // 第一步链接两个表
-      this.ctx.model.Bill.hasOne(this.ctx.model.Type, { foreignKey: 'id', targetKey: 'type_id' });
+      this.ctx.model.Bill.belongsTo(this.ctx.model.Type, { foreignKey: 'type_id', targetKey: 'id' });
       // 第二步查询
       return await this.ctx.model.Bill.findAll({
-        attributes: [ 'pay_type', 'amount', 'date', 'remark' ],
+        attributes: [ 'id', 'pay_type', 'amount', 'date', 'remark' ],
         include: [{
           // 第三步：子表的字段
           subQuery: false,
@@ -51,8 +51,8 @@ class BillService extends Service {
   // 获取账单详情
   async getBillDetail({ order_id }) {
     try {
-      this.ctx.model.Bill.hasOne(this.ctx.model.Type, { foreignKey: 'id', targetKey: 'type_id' });
-      return await this.ctx.model.Bill.findAll({
+      this.ctx.model.Bill.belongsTo(this.ctx.model.Type, { foreignKey: 'type_id', targetKey: 'id' });
+      return await this.ctx.model.Bill.findOne({
         attributes: [ 'pay_type', 'amount', 'date', 'remark', 'user_id' ],
         include: {
           subQuery: false,
@@ -115,7 +115,7 @@ class BillService extends Service {
           [Op.startsWith]: date,
         };
       }
-      this.ctx.model.Bill.hasOne(this.ctx.model.Type, { foreignKey: 'id', targetKey: 'type_id' });
+      this.ctx.model.Bill.belongsTo(this.ctx.model.Type, { foreignKey: 'type_id', targetKey: 'id' });
       return await this.ctx.model.Bill.findAll({
         attributes: [ 'pay_type', 'amount', 'date', 'remark' ],
         include: {

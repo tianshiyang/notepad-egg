@@ -1,8 +1,8 @@
 'use strict';
 
+const { parseQuery } = require('../utils/resultParse');
 const BaseController = require('./baseController');
 const moment = require('moment');
-const { parseQuery } = require('../utils/resultParse');
 
 class BillController extends BaseController {
   // 新增账单
@@ -14,8 +14,8 @@ class BillController extends BaseController {
 
     const rules = {
       amount: 'string',
-      type_id: 'string',
-      pay_type: 'string',
+      type_id: 'int',
+      pay_type: 'int',
     };
 
     const errors = this.app.validator.validate(rules, ctx.request.body);
@@ -70,7 +70,11 @@ class BillController extends BaseController {
         return;
       }
       const id = decode.id;
-      const data = await ctx.service.bill.getBillList({ format_date, type_id, page_no, page_size, id });
+
+      const data = parseQuery(await ctx.service.bill.getBillList({ format_date, type_id, page_no, page_size, id }));
+      data.forEach(item => {
+        item.date = moment(item.date).format('yyyy-MM');
+      });
       if (data) {
         this.success({
           data,
@@ -101,7 +105,7 @@ class BillController extends BaseController {
         id: 'string',
       };
 
-      const errors = this.app.validator.validate(rules, ctx.request.body);
+      const errors = this.app.validator.validate(rules, ctx.query);
       if (errors) {
         this.error({
           message: `${errors[0].field}: ${errors[0].message}`,
@@ -135,11 +139,10 @@ class BillController extends BaseController {
       const { pay_type, amount, date, type_id, remark, order_id } = this.ctx.request.body;
 
       const rules = {
-        pay_type: [ '1', '2' ],
+        pay_type: [ 1, 2 ],
         amount: 'string',
         date: 'date',
-        type_id: 'string',
-        remark: 'string',
+        type_id: 'int' || 'string',
         order_id: 'string',
       };
       const errors = this.app.validator.validate(rules, this.ctx.request.body);
@@ -175,13 +178,6 @@ class BillController extends BaseController {
         return;
       }
       const { id } = this.ctx.request.body;
-      const user_id = parseQuery(await this.ctx.service.bill.getBillDetail({ order_id: id }))[0].user_id;
-      if (user_id !== id) {
-        this.error({
-          message: '不可更改其他人账单',
-        });
-        return;
-      }
       const result = await this.ctx.service.bill.deleteBillOrder({ user_id: decode.id, order_id: id });
       if (!result) {
         this.error({
