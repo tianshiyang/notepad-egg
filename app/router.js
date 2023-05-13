@@ -20,6 +20,8 @@ module.exports = app => {
   router.get('/api/user/get/userinfo', _jwt, controller.user.getUserInfo);
   // 修改用户信息
   router.post('/api/user/update/userinfo', _jwt, controller.user.updateUserInfo);
+  // 修改密码
+  router.post('/api/user/reset/password', _jwt, controller.user.resetPassword);
   // 上传图片
   router.post('/api/upload', controller.upload.upload);
   // 增加账单

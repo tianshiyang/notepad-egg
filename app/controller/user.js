@@ -155,6 +155,40 @@ class UserController extends BaseController {
       });
     }
   }
+
+  // 修改密码
+  async resetPassword() {
+    const { username } = await this.app.jwt.verify(this.ctx.request.header.authorization, this.app.config.jwt.secret);
+    const rules = {
+      oldPassword: 'string',
+      newPassword: 'string',
+    };
+    const errors = this.app.validator.validate(rules, this.ctx.request.body);
+    if (errors) {
+      this.error({
+        message: `${errors[0].field}: ${errors[0].message}`,
+      });
+      return;
+    }
+    const { password } = await this.ctx.service.user.getUserByName(username);
+    const { oldPassword, newPassword } = this.ctx.request.body;
+    if (password !== oldPassword) {
+      this.error({
+        message: '旧密码错误',
+      });
+      return;
+    }
+    const result = parseQuery(await this.service.user.resetPassword({ newPassword, username }));
+    if (result) {
+      this.success({
+        data: result,
+      });
+    } else {
+      this.error({
+        message: '修改失败',
+      });
+    }
+  }
 }
 
 module.exports = UserController;

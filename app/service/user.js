@@ -43,6 +43,16 @@ class UserService extends Service {
       return null;
     }
   }
+
+  // 修改密码
+  async resetPassword({ newPassword, username }) {
+    try {
+      return await this.ctx.model.User.update({ password: newPassword }, { where: { username } });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
 }
 
 module.exports = UserService;
